@@ -1,7 +1,7 @@
 Gamestate = require 'Libraries/hump/gamestate'
 menuState = require 'states/menu'
 settingsState = require 'states/settings'
---gameState = require 'states/game'
+gameState = require 'states/game2'
 pauseState = require 'states/pause'
 assets = require 'assets'
 

@@ -1,9 +1,7 @@
 local pause = {}
-
 local buttons = {}
 local titleFont
 local buttonFont
-local smallFont
 local buttonHeight = 64
 local margin = 16
 
@@ -20,9 +18,10 @@ function pause:enter()
     slotPickerActive = false
     slotButtons = {}
 
-    titleFont  = love.graphics.newFont('Fonts/Chango/Chango-Regular.ttf', 64)
-    buttonFont = love.graphics.newFont(32)
-    smallFont  = love.graphics.newFont(16)
+    titleFont = assets.fonts.titleFont
+    buttonFont = assets.fonts.textFont
+    darkViolet = assets.palette.darkViolet
+    mandarinRed = assets.palette.mandarinRed
 
     table.insert(buttons, makeButton("Resume", function()
         Gamestate.pop()
@@ -74,11 +73,7 @@ function pause:update(dt)
 end
 
 function pause:draw()
-    drawBackground(assets.background1.backgroundSky, 0.05)
-    drawBackground(assets.background1.backgroundSand, 0.1)
-    drawBackground(assets.background1.backgroundCloud3, 0.2)
-    drawBackground(assets.background1.backgroundCloud2, 0.3)
-    drawBackground(assets.background1.backgroundCloud1, 0.4)
+    drawBackground(assets.background1.background, 0.00)
 
     local width  = love.graphics.getWidth()
     local height = love.graphics.getHeight()
@@ -87,7 +82,7 @@ function pause:draw()
 
     -- Title
     love.graphics.setFont(titleFont)
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(darkViolet)
     local title  = slotPickerActive and "Save to Slot" or "PAUSED"
     local titleW = titleFont:getWidth(title)
     love.graphics.print(title, (width - titleW) / 2, height * 0.18)
@@ -116,7 +111,7 @@ function pause:draw()
         end
 
         love.graphics.rectangle("fill", x, y, buttonWidth, buttonHeight)
-        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setColor(darkViolet)
         local textWidth = buttonFont:getWidth(b.text)
         love.graphics.print(b.text, (width - textWidth) / 2, y + 16)
     end

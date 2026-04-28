@@ -1,4 +1,4 @@
-local assets = {}
+assets = {}
 
 function assets.load()
     -- Backgrounds

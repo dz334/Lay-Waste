@@ -36,7 +36,7 @@ function menu:enter()
     mandarinRed = assets.palette.mandarinRed
 
     table.insert(buttons, makeButton("Start Game", function()
-        --Gamestate.switch(require 'states/game')
+        Gamestate.switch(require 'states/game2')
     end))
 
     table.insert(buttons, makeButton("Load Game", function()
@@ -55,7 +55,7 @@ function menu:enter()
 end
 
 function menu:leave()
-    menu_Music:stop()
+    -- menu_Music:stop()
 end
 
 function menu:draw()
