@@ -73,7 +73,7 @@ function pause:update(dt)
 end
 
 function pause:draw()
-    drawBackground(assets.background1.background, 0.00)
+    drawBackground(assets.background2.background, 0.00)
 
     local width  = love.graphics.getWidth()
     local height = love.graphics.getHeight()

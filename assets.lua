@@ -12,6 +12,10 @@ function assets.load()
         background = love.graphics.newImage('Tiles/Seaside/Background/background.png')
     }
 
+    assets.background2 = {
+        background = love.graphics.newImage('Tiles/background.png')
+    }
+
     -- assets.character1 = {
     --     idleLeft = love.graphics.newImage('Sprites/Character1/IdleLeft.png'),
     --     idleRight = love.graphics.newImage('Sprites/Character1/IdleRight.png'),
@@ -30,7 +34,10 @@ function assets.load()
     -- }
 
     assets.placeholderChar = {
-        idle = love.graphics.newImage('Sprites/Duck_Summoner.png')
+        idle = love.graphics.newImage('Sprites/Duck_Summoner.png'),
+        idleL = love.graphics.newImage('Sprites/Duck_SummonerL.png'),
+        runRight = love.graphics.newImage('Sprites/Duck_Summoner-run.png'),
+        runLeft = love.graphics.newImage('Sprites/Duck_Summoner-runL.png')
     }
 
     assets.palette = {

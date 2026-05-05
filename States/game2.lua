@@ -15,63 +15,118 @@ function game:enter()
     gamemap = sti('Map/Level1.lua')
     cam = camera()
 
-    -- Set map dimensions from the loaded map
+    textFont = assets.fonts.textFont
+
     mapW = gamemap.width * gamemap.tilewidth
     mapH = gamemap.height * gamemap.tileheight
+
+    -- Set zoom so the camera scales in like a top-down game
+    local screenW, screenH = love.graphics.getDimensions()
+    --cam:zoom(math.min(screenW / 800, screenH / 600))  -- tune these values
+    cam:zoom(2)
 
     createPlayer()
 end
 
 function createPlayer()
     player = {}
-    player.x, player.y = 400, 300
+    player.x = 100 
+    player.y = 2830
     player.w, player.h = 32, 32
     player.vx, player.vy = 100, 0
     player.moveSpeed = 300
-    player.jumpForce = 410
-    player.gravity = 1100
-    player.maxFallSpeed = 700
-    player.isGrounded = false
 
-    player.sprite = assets.placeholderChar.idle
+    local char = assets.placeholderChar
+
+    player.animation = {}
+
+    -- Run animations
+    player.runRightSheet = char.runRight
+    player.runLeftSheet  = char.runLeft
+
+    local runRightGrid = anim8.newGrid(32, 32, char.runRight:getWidth(), char.runRight:getHeight())
+    local runLeftGrid  = anim8.newGrid(32, 32, char.runLeft:getWidth(),  char.runLeft:getHeight())
+
+    player.animation.runRight = anim8.newAnimation(runRightGrid('1-5', 1), 0.07)
+    player.animation.runLeft  = anim8.newAnimation(runLeftGrid('1-5', 1), 0.07)
+
+    -- Idle
+    player.idleRightSheet = char.idle
+    player.idleLeftSheet  = char.idleL
+
+    local idleRightGrid = anim8.newGrid(32, 32, char.idle:getWidth(), char.idle:getHeight())
+    local idleLeftGrid  = anim8.newGrid(32, 32, char.idleL:getWidth(), char.idleL:getHeight())
+
+    player.animation.idleRight = anim8.newAnimation(idleRightGrid('1-1', 1), 1)
+    player.animation.idleLeft  = anim8.newAnimation(idleLeftGrid('1-1', 1), 1)
+
+    -- Default state
+    player.anim = player.animation.idleRight
+    player.animSheet = player.idleRightSheet
+    player.facingRight = true
+
 end
-
-
 
 function game:update(dt)
     if gamemap then 
         gamemap:update(dt) 
     end
 
-    
+    -- Read input
+    moveX = 0
+    moveY = 0
+    if love.keyboard.isDown("a") or love.keyboard.isDown("left") then
+        moveX = -1
+        player.facingRight = false
+    elseif love.keyboard.isDown("d") or love.keyboard.isDown("right") then
+        moveX = 1
+        player.facingRight = true
+    end
+    if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
+        moveY = -1
+    elseif love.keyboard.isDown("s") or love.keyboard.isDown("down") then
+        moveY = 1
+    end
 
-    local moveX, moveY = 0, 0
-    if love.keyboard.isDown("d") then 
-        moveX = 1 
-    end
-    if love.keyboard.isDown("a") then 
-        moveX = -1 
-    end
-    if love.keyboard.isDown("w") then 
-        moveY = -1 
-    end
-    if love.keyboard.isDown("s") then 
-        moveY = 1 
+    -- Animation swap
+    if moveX ~= 0 then
+        if player.facingRight and player.anim ~= player.animation.runRight then
+            player.anim = player.animation.runRight
+            player.animSheet = player.runRightSheet
+            player.anim:gotoFrame(1)
+        elseif not player.facingRight and player.anim ~= player.animation.runLeft then
+            player.anim = player.animation.runLeft
+            player.animSheet = player.runLeftSheet
+            player.anim:gotoFrame(1)
+        end
+    else
+        if player.facingRight and player.anim ~= player.animation.idleRight then
+            player.anim = player.animation.idleRight
+            player.animSheet = player.idleRightSheet
+            player.anim:gotoFrame(1)
+        elseif not player.facingRight and player.anim ~= player.animation.idleLeft then
+            player.anim = player.animation.idleLeft
+            player.animSheet = player.idleLeftSheet
+            player.anim:gotoFrame(1)
+        end
     end
 
+    player.anim:update(dt)
+
+    -- Move player
     player.x = player.x + moveX * player.moveSpeed * dt
     player.y = player.y + moveY * player.moveSpeed * dt
 
-     -- Follow player and clamp camera to map bounds
+    -- Player boundary clamp
+    player.x = math.max(player.w/2, math.min(player.x, mapW - player.w/2))
+    player.y = math.max(player.h/2, math.min(player.y, mapH - player.h/2))
+
+    -- Follow player and clamp camera to map bounds
     cam:lookAt(player.x, player.y)
     local w = love.graphics.getWidth() / cam.scale
     local h = love.graphics.getHeight() / cam.scale
     cam.x = math.max(w/2, math.min(cam.x, mapW - w/2))
     cam.y = math.max(h/2, math.min(cam.y, mapH - h/2))
-
-    -- Clamp player to map bounds
-    player.x = math.max(player.w/2, math.min(player.x, mapW - player.w/2))
-    player.y = math.max(player.h/2, math.min(player.y, mapH - player.h/2))
 
     -- X-Axis Clamp (Centers the map if the map is smaller than the screen)
     if mapW < w then
@@ -86,20 +141,20 @@ function game:update(dt)
     else
         cam.y = math.max(h/2, math.min(cam.y, mapH - h/2))
     end
+
 end
 
 function game:draw()
-
-    love.graphics.print("px: " .. player.x .. " py: " .. player.y, 10, 16)
-    love.graphics.print("mapW: " .. mapW .. " mapH: " .. mapH, 10, 30)
-
     cam:attach()
     if gamemap then
-        gamemap:draw()
+        gamemap:drawLayer(gamemap.layers["Ground"])
+        gamemap:drawLayer(gamemap.layers["Enemies"])
+        gamemap:drawLayer(gamemap.layers["House and Duck"])
     end
+    
     if player then
         -- use player.x/y directly, no collider
-        love.graphics.draw(player.sprite, player.x - player.w/2, player.y - player.h/2, nil, 2.5)
+        player.anim:draw(player.animSheet,player.x, player.y, nil, 1, nil, player.w / 2, player.h / 2)
     end
     cam:detach()
 end

@@ -55,7 +55,7 @@ function settings:update(dt)
 end
 
 function settings:draw()
-    drawBackground(assets.background1.background, 0.00)
+    drawBackground(assets.background2.background, 0.00)
 
     local width = love.graphics.getWidth()
     local height = love.graphics.getHeight()
