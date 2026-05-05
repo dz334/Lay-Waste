@@ -65,6 +65,33 @@ function createPlayer()
     player.animSheet = player.idleRightSheet
     player.facingRight = true
 
+    -- UI state
+    ui = {}
+    ui.hp = 100
+    ui.maxHp = 100
+    ui.mana = 80
+    ui.maxMana = 100
+    ui.showMap = true 
+end
+
+local function drawBar(x, y, w, h, value, max, fgColor, bgColor, isVertical)
+    -- Background
+    love.graphics.setColor(bgColor or {0, 0, 0})
+    love.graphics.rectangle("fill", x, y, w, h)
+
+    -- Foreground fill
+    love.graphics.setColor(fgColor or {1, 1, 1})
+    local pct = math.max(0, math.min(1, value / max))
+
+    if isVertical then
+        local fillH = h * pct
+        love.graphics.rectangle("fill", x, y + (h - fillH), w, fillH)
+    else
+        local fillW = w * pct
+        love.graphics.rectangle("fill", x, y, fillW, h)
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function game:update(dt)
@@ -153,10 +180,47 @@ function game:draw()
     end
     
     if player then
-        -- use player.x/y directly, no collider
-        player.anim:draw(player.animSheet,player.x, player.y, nil, 1, nil, player.w / 2, player.h / 2)
+        player.anim:draw(player.animSheet, player.x, player.y, nil, 1, nil, player.w / 2, player.h / 2)
     end
     cam:detach()
+
+    local sw, sh = love.graphics.getDimensions()
+
+    -- 1. Map button (top-left)
+    if ui.showMap then
+        love.graphics.setColor(0.2, 0.25, 0.2, 0.8)
+        love.graphics.rectangle("fill", 20, 20, 80, 60)
+        love.graphics.setColor(0.6, 0.7, 0.6, 1)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", 20, 20, 80, 60)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.printf("Map", 20, 40, 80, "center")
+    end
+
+    -- 2. HP Bar (bottom-left)
+    local hpW, hpH = 250, 24
+    local hpX, hpY = 20, sh - hpH - 20
+    love.graphics.setFont(textFont)
+    drawBar(hpX, hpY, hpW, hpH, ui.hp, ui.maxHp, {0.2, 0.8, 0.2}, {0.1, 0.1, 0.1})
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print("HP", hpX, hpY - 18)
+
+    -- 3. Mana / "Spite" Bar (right side, vertical)
+    local manaW, manaH = 24, 250
+    local manaX, manaY = sw - manaW - 20, (sh - manaH) / 2
+    drawBar(manaX, manaY, manaW, manaH, ui.mana, ui.maxMana, {0.6, 0.4, 0.9}, {0.1, 0.1, 0.1}, true)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.printf("Spite", manaX - 80, manaY + manaH / 2 - 6, 70, "right")
+
+    -- 4. Inventory Icon (bottom-right)
+    local invSize = 48
+    local invX, invY = sw - invSize - 20, sh - invSize - 20
+    love.graphics.setColor(0.2, 0.15, 0.1, 0.9)
+    love.graphics.rectangle("fill", invX, invY, invSize, invSize)
+    love.graphics.setColor(0.8, 0.7, 0.5, 1)
+    love.graphics.setLineWidth(2)
+    love.graphics.rectangle("line", invX, invY, invSize, invSize)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function game:leave()
