@@ -60,7 +60,7 @@ end
 
 function menu:draw()
     -- Draw background
-    drawBackground(assets.background2.background, 0.00)
+    drawBackground(assets.background2.background2, 0.00)
 
     -- Get Screen size
     local width = love.graphics.getWidth()

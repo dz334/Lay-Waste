@@ -13,7 +13,8 @@ function assets.load()
     }
 
     assets.background2 = {
-        background = love.graphics.newImage('Tiles/background.png')
+        background = love.graphics.newImage('Tiles/background.png'),
+        background2 = love.graphics.newImage('Tiles/background2.png')
     }
 
     -- assets.character1 = {

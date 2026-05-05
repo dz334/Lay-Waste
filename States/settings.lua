@@ -74,11 +74,11 @@ function settings:draw()
     love.graphics.setColor(1, 1, 1, 0.95)
     love.graphics.setFont(textFont)
     -- print the current volume level
-    local volumeText = string.format("Current Volume: %d%%", love.audio.getVolume() * 100)
-    love.graphics.print(volumeText, width * 0.22, height * 0.44)
+    local volumeText = string.format("           Volume: %d%%", love.audio.getVolume() * 100)
+    love.graphics.print(volumeText, (width - titleW) / 2, height * 0.40)
 
     -- Buttons
-    local startY = height * 0.5
+    local startY = height * 0.45
     for i, b in ipairs(buttons) do
         local x = (width - buttonWidth) / 2
         local y = startY + (i - 1) * (buttonHeight + margin)
